@@ -1,5 +1,6 @@
 package business;
 
+import model.Department;
 import model.Payroll;
 import model.Teacher;
 
@@ -11,7 +12,7 @@ public class TeacherManager {
     String teacherFile = "teachers.txt";
 
     public TeacherManager() {
-        createFileIfNotExists(teacherFile);
+        //createFileIfNotExists(teacherFile);
         importTeachersFromFile(teacherFile);
     }
 
@@ -87,7 +88,7 @@ public class TeacherManager {
                         teacher.getWorkHours() + "|" +
                         teacher.getPayroll().getPayrollID() + "\n");
             }
-            System.out.println("Xuất danh sách giáo viên ra file TXT thành công: " + filename);
+            //System.out.println("Xuất danh sách giáo viên ra file TXT thành công: " + filename);
         } catch (IOException e) {
             System.out.println("Lỗi khi ghi file TXT: " + e.getMessage());
         }
@@ -123,7 +124,7 @@ public class TeacherManager {
                     System.out.println("Dòng dữ liệu không hợp lệ: " + line);
                 }
             }
-            System.out.println("Nhập danh sách giáo viên từ file thành công!");
+            //System.out.println("Nhập danh sách giáo viên từ file thành công!");
         } catch (IOException e) {
             System.out.println("Lỗi khi đọc file: " + e.getMessage());
         } catch (NumberFormatException e) {
@@ -163,53 +164,83 @@ public class TeacherManager {
             case 4: // Sắp xếp theo số giờ
                 Collections.sort(teacherList,Comparator.comparingInt(Teacher::getWorkHours));
                 System.out.println("Danh sách giáo viên đã được sắp xếp theo tổng số giờ làm việc.");
+                break;
             default:
                 System.out.println("Tiêu chí không hợp lệ!");
                 break;
         }
     }
 
-    public Optional<Teacher> findTeacherWithSmallestName() {
+    public Teacher findTeacherWithSmallestName() {
         return teacherList.stream()
-                .min(Comparator.comparing(Teacher::getName));
+                .min(Comparator.comparing(Teacher::getName)).get();
     }
 
     // Tìm giáo viên có tên xếp theo thứ tự từ điển lớn nhất
-    public Optional<Teacher> findTeacherWithLargestName() {
+    public Teacher findTeacherWithLargestName() {
         return teacherList.stream()
-                .max(Comparator.comparing(Teacher::getName));
+                .max(Comparator.comparing(Teacher::getName)).get();
     }
 
     // Tìm giáo viên có tuổi lớn nhất
-    public Optional<Teacher> findTeacherWithMaxAge() {
+    public Teacher findTeacherWithMaxAge() {
         return teacherList.stream()
-                .max(Comparator.comparingInt(Teacher::getAge));
+                .max(Comparator.comparingInt(Teacher::getAge)).get();
     }
 
     // Tìm giáo viên có tuổi nhỏ nhất
-    public Optional<Teacher> findTeacherWithMinAge() {
+    public Teacher findTeacherWithMinAge() {
         return teacherList.stream()
-                .min(Comparator.comparingInt(Teacher::getAge));
+                .min(Comparator.comparingInt(Teacher::getAge)).get();
     }
 
     // Tìm giáo viên có số giờ làm việc lớn nhất
-    public Optional<Teacher> findTeacherWithMaxWorkHours() {
+    public Teacher findTeacherWithMaxWorkHours() {
         return teacherList.stream()
-                .max(Comparator.comparingInt(Teacher::getWorkHours));
+                .max(Comparator.comparingInt(Teacher::getWorkHours)).get();
     }
 
     // Tìm giáo viên có số giờ làm việc nhỏ nhất
-    public Optional<Teacher> findTeacherWithMinWorkHours() {
+    public Teacher findTeacherWithMinWorkHours() {
         return teacherList.stream()
-                .min(Comparator.comparingInt(Teacher::getWorkHours));
+                .min(Comparator.comparingInt(Teacher::getWorkHours)).get();
     }
 
     // In kết quả tìm kiếm
-    public void printResult(String criteria, Optional<Teacher> teacher) {
-        if (teacher.isPresent()) {
-            System.out.println("Giáo viên " + criteria + ": " + teacher.get());
+    public void printResult(String criteria,Teacher teacher) {
+        if (teacher != null) {
+            System.out.println("Giáo viên " + criteria + ": " + teacher.toString(1));
         } else {
             System.out.println("Không tìm thấy giáo viên.");
         }
+    }
+
+    public boolean IsExistTeacherByPayrollsById(String id){
+        for (Teacher teacher:teacherList) {
+            if (teacher.getPayroll().getPayrollID().equals(id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public List<Teacher> findByDepartment(Department department){
+        List<Teacher> teachers = new ArrayList<>();
+        int index = 0;
+        for (Teacher teacher: teacherList) {
+            if (teacher.getDepartment().equals(department.name())) {
+                teachers.add(teacher);
+                index++;
+                System.out.println(teacher.toString(index));
+            }
+        }
+        if (teachers.isEmpty()) {
+            System.out.println("Không có giáo viên trong bộ phận này");
+        }
+        return teachers;
+    }
+
+    public void  getAllPayrolls() {
+
     }
 }

@@ -9,7 +9,7 @@ public class Payroll {
     public Payroll() {
     }
 
-    public Payroll(String PayrollId, double baseSalary, double salaryMultiplier, double totalSalary) {
+    public Payroll(String PayrollId, double baseSalary, double salaryMultiplier) {
         this.PayrollID = PayrollId;
         this.baseSalary = baseSalary;
         this.salaryMultiplier = salaryMultiplier;
@@ -50,7 +50,6 @@ public class Payroll {
                 "PayrollID='" + PayrollID +
                 ", baseSalary=" + baseSalary +
                 ", salaryMultiplier=" + salaryMultiplier +
-                ", totalSalary=" + totalSalary +
                 '\n';
     }
 }

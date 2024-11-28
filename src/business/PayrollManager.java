@@ -84,13 +84,13 @@ public class PayrollManager {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts.length == 4) {
+                if (parts.length == 3) {
                     String payrollId = parts[0];
                     double baseSalary = Double.parseDouble(parts[1]);
                     double salaryMultiplier = Double.parseDouble(parts[2]);
-                    double totalSalary = Double.parseDouble(parts[3]);
+                    //double totalSalary = Double.parseDouble(parts[3]);
 
-                    Payroll payroll = new Payroll(payrollId, baseSalary, salaryMultiplier, totalSalary);
+                    Payroll payroll = new Payroll(payrollId, baseSalary, salaryMultiplier);
                     payrollList.add(payroll);
                 }
             }

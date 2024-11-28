@@ -2,10 +2,15 @@ package menu;
 
 import business.PayrollManager;
 import business.TeacherManager;
+import model.Department;
 import model.Payroll;
 import model.Teacher;
 
+import java.sql.Struct;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import java.util.UUID;
 
 public class TeacherMenu {
     TeacherManager teacherManager = new TeacherManager();
@@ -19,6 +24,7 @@ public class TeacherMenu {
         System.out.println("4.Xoá thông tin giáo viên");
         System.out.println("5.Sắp xếp danh sách giáo viên");
         System.out.println("6.Tìm kiếm giáo viên lớn nhất/nhỏ nhất");
+        System.out.println("7.Tìm kiếm danh sách giáo viên theo khoa ");
         System.out.println("0.Exit");
         System.out.println("Chọn mục mong muốn ");
         try {
@@ -41,9 +47,11 @@ public class TeacherMenu {
                 break;
             case 3:
                 editTeacher();
+                showMenu();
                 break;
             case 4:
                 deleteTeacher();
+                showMenu();
                 break;
             case 5:
                 sort();
@@ -51,11 +59,15 @@ public class TeacherMenu {
             case 6:
                 showFindMenu();
                 break;
+            case 7:
+                findTeachersByDepartment();
+                break;
             case 0:
                 System.out.println("Thoát chương trình.");
                 System.exit(0);
             default:
                 System.out.println("Lựa chọn không hợp lệ! Vui lòng thử lại.");
+                showMenu();
         }
     }
 
@@ -66,17 +78,48 @@ public class TeacherMenu {
 
     public void addTeacherFromInput() {
         try {
-            System.out.print("Nhập ID giáo viên: ");
-            String teacherId = sc.nextLine();
+            //System.out.print("Nhập ID giáo viên: ");
+            String teacherId = UUID.randomUUID().toString();
 
             System.out.print("Nhập tên giáo viên: ");
             String name = sc.nextLine();
 
             System.out.print("Nhập tuổi: ");
             int age = Integer.parseInt(sc.nextLine());
+            String department;
+            int dpi;
+            while (true) {
+                System.out.print("Nhập bộ phận: ");
+                System.out.println("nếu bạn nhập một ký tự số tt không đúng chúng tôi sẽ mặc định chọn công nghệ");
+                System.out.println("1.Công nghệ");
+                System.out.println("2.Quản trị");
+                System.out.println("3.Tài chính");
+                System.out.println("4.Ngoại ngữ");
+                try {
+                    dpi = Integer.parseInt(sc.nextLine());
+                    break;
+                } catch (Exception e){
+                    dpi = 1;
+                    break;
+                }
+            }
 
-            System.out.print("Nhập bộ môn: ");
-            String department = sc.nextLine();
+            switch (dpi) {
+                case 1:
+                    department = Department.CN.name();
+                    break;
+                case 2:
+                    department = Department.QT.name();
+                    break;
+                case 3:
+                    department = Department.TC.name();
+                    break;
+                case 4:
+                    department = Department.NN.name();
+                    break;
+                default:
+                    department = Department.CN.name();
+            }
 
             System.out.print("Nhập chức vụ: ");
             String position = sc.nextLine();
@@ -114,7 +157,7 @@ public class TeacherMenu {
         System.out.print("Nhập stt giáo viên cần sửa: ");
         int id = Integer.parseInt(sc.nextLine());
 
-        Teacher teacher = teacherManager.getByIndex(id);
+        Teacher teacher = teacherManager.getByIndex(id-1);
         if (teacher == null) {
             System.out.println("Không tìm thấy giáo viên với stt: " + id);
             return;
@@ -146,7 +189,7 @@ public class TeacherMenu {
             }
 
             Payroll payroll = new Payroll();
-            System.out.print("Nhập mức lương mới (để trống nếu không đổi): ");
+            System.out.print("Nhập mức lương mới (để trống nếu không đổi): Y/N ");
             String choice1 = sc.nextLine();
             if (!choice1.isEmpty()) {
                 teacher.setPosition(position);
@@ -159,7 +202,8 @@ public class TeacherMenu {
                     int choice = Integer.parseInt(sc.nextLine());
                     switch (choice) {
                         case 1:
-                            return;
+                            showMenu();
+                            break;
                         case 2:
                             payroll = InputSalaryRank();
                         default:
@@ -176,7 +220,7 @@ public class TeacherMenu {
                 teacher.setWorkHours(Integer.parseInt(workHours));
             }
 
-            teacherManager.Edit(id , teacher);
+            teacherManager.Edit((id-1), teacher);
             System.out.println("Cập nhật thông tin giáo viên thành công!");
         } catch (Exception e) {
             System.out.println("Lỗi khi cập nhật: " + e.getMessage());
@@ -187,12 +231,12 @@ public class TeacherMenu {
         System.out.print("Nhập stt giáo viên cần xoá: ");
         int id = Integer.parseInt(sc.nextLine());
 
-        Teacher teacher = teacherManager.getByIndex(id);
+        Teacher teacher = teacherManager.getByIndex(id-1);
         if (teacher != null) {
             teacherManager.Delete(teacher);
             System.out.println("Xoá giáo viên thành công!");
         } else {
-            System.out.println("Không tìm thấy giáo viên với ID: " + id);
+            System.out.println("Không tìm thấy giáo viên với ID: " + (id-1));
         }
     }
 
@@ -226,7 +270,7 @@ public class TeacherMenu {
         System.out.println("=================================");
         int payRollIndex = Integer.parseInt(sc.nextLine());
 
-        Payroll payroll = payrollManager.getByIndex(payRollIndex);
+        Payroll payroll = payrollManager.getByIndex(payRollIndex-1);
         return payroll;
     }
 
@@ -239,37 +283,180 @@ public class TeacherMenu {
         System.out.println("5. Số giờ làm việc lớn nhất");
         System.out.println("6. Số giờ làm việc nhỏ nhất");
         System.out.println("7. trở lại màn hình chính");
-        System.out.print("Lựa chọn: ");
+        while (true) {
+            System.out.print("Lựa chọn kiểu : ");
 
-        try {
-            int choice = Integer.parseInt(sc.nextLine());
-            switch (choice) {
-                case 1:
-                     teacherManager.printResult("có tên nhỏ nhất", teacherManager.findTeacherWithSmallestName());
+            try {
+                int choice = Integer.parseInt(sc.nextLine());
+                switch (choice) {
+                    case 1:
+                        teacherManager.printResult("có tên nhỏ nhất", teacherManager.findTeacherWithSmallestName());
+                        break;
+                    case 2:
+                        teacherManager.printResult("có tên lớn nhất", teacherManager.findTeacherWithLargestName());
+                        break;
+                    case 3:
+                        teacherManager.printResult("có tuổi lớn nhất", teacherManager.findTeacherWithMaxAge());
+                        break;
+                    case 4:
+                        teacherManager.printResult("có tuổi nhỏ nhất", teacherManager.findTeacherWithMinAge());
+                        break;
+                    case 5:
+                        teacherManager.printResult("có số giờ làm việc lớn nhất", teacherManager.findTeacherWithMaxWorkHours());
+                        break;
+                    case 6:
+                        teacherManager.printResult("có số giờ làm việc nhỏ nhất", teacherManager.findTeacherWithMinWorkHours());
+                        break;
+                    case 7:
+                        showMenu();
+                        break;
+                    default:
+                        System.out.println("Lựa chọn không hợp lệ!");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Vui lòng nhập số hợp lệ!");
+            }
+        }
+
+    }
+
+    public void findTeachersByDepartment() {
+        boolean back = false;
+        while (true) {
+            System.out.println("============================================================");
+            System.out.println(" chọn bộ phận muốn tìm kiếm ");
+            System.out.println("1.Công nghệ thông tin ");
+            System.out.println("2.Quản trị");
+            System.out.println("3.Tài chính ");
+            System.out.println("4.Ngoại ngữ");
+            System.out.println("5.về menu");
+            int index;
+            int flag = 0;
+
+            try{
+                index = Integer.parseInt(sc.nextLine());
+                if (index == 5) back = true;
+            }catch (Exception e) {
+                System.out.println("vì nhập không phải là số nên mặc định sẽ chọn công nghệ thông tin");
+                index = 1;
+            }
+
+            List<Teacher> teachers = new ArrayList<>();
+
+            switch (index) {
+                case 1 :
+                    teachers = teacherManager.findByDepartment(Department.CN);
+                    DpI(teachers);
                     break;
                 case 2:
-                    teacherManager.printResult("có tên lớn nhất", teacherManager.findTeacherWithLargestName());
+                    teachers = teacherManager.findByDepartment(Department.QT);
+                    DpI(teachers);
                     break;
                 case 3:
-                    teacherManager.printResult("có tuổi lớn nhất", teacherManager.findTeacherWithMaxAge());
+                    teachers = teacherManager.findByDepartment(Department.TC);
+                    DpI(teachers);
                     break;
                 case 4:
-                    teacherManager.printResult("có tuổi nhỏ nhất", teacherManager.findTeacherWithMinAge());
+                    teachers = teacherManager.findByDepartment(Department.NN);
+                    DpI(teachers);
                     break;
-                case 5:
-                    teacherManager.printResult("có số giờ làm việc lớn nhất", teacherManager.findTeacherWithMaxWorkHours());
-                    break;
-                case 6:
-                    teacherManager.printResult("có số giờ làm việc nhỏ nhất", teacherManager.findTeacherWithMinWorkHours());
-                    break;
-                case 7:
+                case 5 :
                     showMenu();
                     break;
                 default:
-                    System.out.println("Lựa chọn không hợp lệ!");
+                    System.out.println("không có lựa chọn này ");
             }
-        } catch (NumberFormatException e) {
-            System.out.println("Vui lòng nhập số hợp lệ!");
+        }
+
+    }
+
+    public void TrungBinhLuong(List<Teacher> teachers){
+        double count = 0;
+        for (Teacher teacher: teachers) {
+            count += teacher.getTotalSalary();
+        }
+
+        double tb = count/teachers.size();
+        System.out.println("Lương trung bình là");
+        System.out.print(tb);
+    }
+
+    public void ageAvg(List<Teacher> teachers){
+        int count = 0;
+        for (Teacher teacher:teachers) {
+            count+=teacher.getAge();
+        }
+        System.out.println("Tuổi trung bình là : " + (count / teachers.size()));
+    }
+
+    public void totalSalary(List<Teacher> teachers){
+        double count = 0;
+        for (Teacher t : teachers) {
+            count+= t.getTotalSalary();
+        }
+
+        System.out.println("Tổng lương của phòng ban là: " + count);
+    }
+
+    public void totalHours(List<Teacher> teachers) {
+        double count = 0;
+        for (Teacher t : teachers) {
+            count+= t.getWorkHours();
+        }
+        System.out.println("Tổng số giờ làm của phòng ban là: " + count);
+    }
+
+    public void  avgHours(List<Teacher> teachers){
+        double count = 0;
+        for (Teacher t : teachers) {
+            count+= t.getWorkHours();
+        }
+        System.out.println("số giờ làm trung bình của phòng ban là: " + (count/teachers.size()));
+    }
+
+    public void DpI(List<Teacher> teachers) {
+        if (teachers.size() == 0) {
+            findTeachersByDepartment();
+            return;
+        }
+        System.out.println("=========================");
+        System.out.println("1.Tính mức lương trung bình của phòng/ban");
+        System.out.println("2.Tính tổng lương của phòng/ban");
+        System.out.println("3.Tuổi trung bình của phòng/ban");
+        System.out.println("4.Tổng số giờ làm của phòng/ban");
+        System.out.println("5.Số giờ làm trung bình của môi người trong phòng/ban");
+        System.out.println("6.Quay lại");
+
+        int action = Integer.parseInt(sc.nextLine());
+
+        switch (action){
+            case 1:
+                TrungBinhLuong(teachers);
+                DpI(teachers);
+                break;
+            case 2:
+                totalSalary(teachers);
+                DpI(teachers);
+                break;
+            case 3:
+                ageAvg(teachers);
+                DpI(teachers);
+                break;
+            case 4:
+                totalHours(teachers);
+                DpI(teachers);
+                break;
+            case 5:
+                avgHours(teachers);
+                DpI(teachers);
+                break;
+            case 6 :
+                findTeachersByDepartment();
+                break;
+            default:
+                System.out.println("không có chức năng này");
+                DpI(teachers);
+                break;
         }
     }
 }

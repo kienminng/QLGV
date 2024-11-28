@@ -102,12 +102,22 @@ public class Teacher {
     }
 
     public String toString(int index) {
+        String departmentName = new String();
+        if (department.equals(Department.CN.name())) {
+            departmentName = "Công nghệ thông tin";
+        } else if (department.equals(Department.TC.name())) {
+            departmentName = "Tài chính";
+        } else if (department.equals(Department.QT.name())){
+            departmentName = "Quản trị";
+        } else if (department.equals(Department.NN.name())) {
+            departmentName = "Ngoại ngữ";
+        }
         return "----------------------- Teacher -------------------------"+'\n'  +
                 "STT = "+ index  +'\'' +
                 "teacherId='" + teacherId + '\'' +
                 ",name='" + name + '\'' +
                 ",age=" + age +
-                ",department='" + department + '\'' +
+                ",department='" + departmentName + '\'' +
                 ",position='" + position + '\'' +
                 ",workHours= "  + workHours + '\'' +
                 ",Total salary=" + getTotalSalary() + '\n'+
